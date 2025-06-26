@@ -1,10 +1,10 @@
-import { MathJax } from "better-react-mathjax";
 import React, { useState } from "react";
-import { TextField } from "@mui/material";
+import { Box, Grid, TextField } from "@mui/material";
 import { parse } from "mathjs";
+import LaTeXCanvas from "./components/latexcanvas";
 
 const Visualiser: React.FC = () => {
-  const [texExpression, setTexExpression] = useState('');
+  const [texExpression, setTexExpression] = useState<string>('');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value;
@@ -18,21 +18,23 @@ const Visualiser: React.FC = () => {
   };
 
   return (
-    <div>
+    <>
       <div>
         <TextField
           type="text"
-          style={ { width: '500px' } }
+          style={{ width: '500px', paddingTop: 0 }}
           onChange={handleChange}
           placeholder="Type LaTeX expression, e.g. \\frac{1}{x}"
         />
+        <button>Search</button>
       </div>
-      <div>
-        <MathJax inline dynamic>
-          {`\\(${texExpression}\\)`}
-        </MathJax>
-      </div>
-    </div>
+      <Box style={ { height: "70vh", paddingTop: "3rem" }}>
+        <Grid container spacing={4} sx={{ height: "100%" }}>
+          <LaTeXCanvas texExpression={texExpression} />
+          <LaTeXCanvas texExpression={texExpression} />
+        </Grid>
+      </Box>
+    </>
   );
 };
 
