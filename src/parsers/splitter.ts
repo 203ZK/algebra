@@ -1,28 +1,28 @@
 import { ConstantNode, OperatorNode, ParenthesisNode, SymbolNode, type MathNode } from "mathjs";
-import { Constant, Product, Sum, Variable, type Expression } from "../types/operands";
+import { Constant, Product, Sum, Term, Variable, type Expression } from "../types/operands";
+
+// const PLUS_ONE = new Constant(1);
+const ZERO = new Constant(0);
+const MINUS_ONE = new Constant(-1);
 
 export const nodeToExpressionTree = (node: MathNode): Expression => {
   switch (node.type) {
     case "ConstantNode":
-      const constNode = node as ConstantNode;
-      return new Constant(constNode.value);
+      const constantNode = node as ConstantNode;
+      return new Constant(constantNode.value);
     case "OperatorNode":
-      const opNode = node as OperatorNode;
-      switch (opNode.op) {
+      const operatorNode = node as OperatorNode;
+      switch (operatorNode.op) {
         case "+":
-          const plus1: Expression = nodeToExpressionTree(opNode.args[0]);
-          const plus2: Expression = nodeToExpressionTree(opNode.args[1]);
-          return new Sum([plus1, plus2]);
+          return sumToExpressionTree(operatorNode);
         case "-":
-          const minus1: Expression = nodeToExpressionTree(opNode.args[0]);
-          const minus2: Expression = nodeToExpressionTree(opNode.args[1]);
-          return new Sum([minus1, new Product([new Constant(-1), minus2])]);
+          return differenceToExpressionTree(operatorNode);
         case "*":
-          const mult1: Expression = nodeToExpressionTree(opNode.args[0]);
-          const mult2: Expression = nodeToExpressionTree(opNode.args[1]);
-          return new Product([mult1, mult2]);
+          return productToExpressionTree(operatorNode);
+        // case "/":
+        //   return divisionToExpressionTree(operatorNode);
         default:
-          return new Constant(0);
+          return ZERO;
       }
     case "ParenthesisNode":
       const parenNode = node as ParenthesisNode;
@@ -31,6 +31,85 @@ export const nodeToExpressionTree = (node: MathNode): Expression => {
       const symNode = node as SymbolNode;
       return new Variable(symNode.name);
     default:
-      return new Constant(0);
+      return ZERO;
   };
+};
+
+/** 
+ * Converts a sum to an expression tree.
+ */
+export const sumToExpressionTree = (node: OperatorNode): Expression => {
+  if (node.isUnary()) {
+    return nodeToExpressionTree(node.args[0]);
+  } else {
+    const operand1: Expression = nodeToExpressionTree(node.args[0]);
+    const operand2: Expression = nodeToExpressionTree(node.args[1]);
+    
+    const augend: Expression[] = operand1 instanceof Sum ? operand1.addends : [operand1];
+    const addend: Expression[] = operand2 instanceof Sum ? operand2.addends : [operand2];
+    return new Sum([...augend, ...addend]);
+  }
+};
+
+/**
+ * Converts a difference to an expression tree.
+ */
+export const differenceToExpressionTree = (node: OperatorNode): Expression => {
+  if (node.isUnary()) {
+    return negate(nodeToExpressionTree(node.args[0]));
+  } else {
+    const operand1: Expression = nodeToExpressionTree(node.args[0]);
+    const operand2: Expression = nodeToExpressionTree(node.args[1]);
+    
+    const augend: Expression[] = operand1 instanceof Sum ? operand1.addends : [operand1];
+    const addend: Expression[] = operand2 instanceof Sum
+      ? operand2.addends.map((expr: Expression) => negate(expr))
+      : [negate(operand2)];
+    return new Sum([...augend, ...addend]);
+  }
+};
+
+/**
+ * Converts a product to an expression tree.
+ */
+export const productToExpressionTree = (node: OperatorNode): Expression => {
+  const operand1: Expression = nodeToExpressionTree(node.args[0]);
+  const operand2: Expression = nodeToExpressionTree(node.args[1]);
+
+  // A term is defined by a coefficient and an indeterminate variable.
+  if (operand1 instanceof Constant && operand2 instanceof Variable) {
+    return new Term(operand1, operand2);
+  } else if (operand1 instanceof Variable && operand2 instanceof Constant) {
+    return new Term(operand2, operand1);
+  }
+
+  const multiplicand1: Expression[] = operand1 instanceof Product ? operand1.factors : [operand1];
+  const multiplicand2: Expression[] = operand2 instanceof Product ? operand2.factors : [operand2];
+  return new Product([...multiplicand1, ...multiplicand2]);
+};
+
+/**
+ * Converts a division to an expression tree.
+ */
+// export const divisionToExpressionTree = (node: OperatorNode): Expression => {
+
+// };
+
+/**
+ * Negates an expression.
+ * If the expression is a product of -1 and another expression, it will simply take that other expression.
+ * Else, the product of -1 and the expression itself will be returned.
+ */
+export const negate = (expression: Expression): Expression => {
+  if (expression instanceof Product) {
+    if (expression.factors[0] == MINUS_ONE) {
+      return new Product(expression.factors.slice(1));
+    } else {
+      return new Product([MINUS_ONE, ...expression.factors]);
+    }
+  } else if (expression instanceof Constant) {
+    return expression.negate();
+  } else {
+    return new Product([MINUS_ONE, expression]);
+  }
 };

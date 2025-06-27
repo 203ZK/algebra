@@ -6,14 +6,15 @@ import BlockCanvas from "./components/blockcanvas";
 import { nodeToExpressionTree } from "./parsers/splitter.ts";
 
 const Visualiser: React.FC = () => {
-  const [AST, setAST] = useState<MathNode | null>(null);
+  const DEFAULT_ZERO = parse("0");
+  const [AST, setAST] = useState<MathNode>(DEFAULT_ZERO);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value;
     const parsedTree = parse(input);
 
-    if (parsedTree === null) {
-      setAST(null);
+    if (input == "" || parsedTree === null) {
+      setAST(DEFAULT_ZERO);
     } else {
       setAST(parsedTree);
     }
@@ -21,7 +22,10 @@ const Visualiser: React.FC = () => {
 
   useEffect(() => {
     if (AST) {
-      console.log(nodeToExpressionTree(AST));
+      console.log(AST);
+      console.log(nodeToExpressionTree(AST).toString());
+    } else {
+      console.log("No valid expression entered.");
     }
   }, [AST]);
 
