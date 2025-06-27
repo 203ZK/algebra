@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Grid, TextField } from "@mui/material";
 import { parse, type MathNode } from "mathjs";
 import LaTeXCanvas from "./components/latexcanvas";
 import BlockCanvas from "./components/blockcanvas";
+import { nodeToExpressionTree } from "./parsers/splitter.ts";
 
 const Visualiser: React.FC = () => {
-  // const [texExpression, setTexExpression] = useState<string>('');
   const [AST, setAST] = useState<MathNode | null>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,6 +18,12 @@ const Visualiser: React.FC = () => {
       setAST(parsedTree);
     }
   };
+
+  useEffect(() => {
+    if (AST) {
+      console.log(nodeToExpressionTree(AST));
+    }
+  }, [AST]);
 
   return (
     <>

@@ -5,8 +5,7 @@ interface BlockCanvasProps {
   parsedAST: MathNode | null;
 }
 
-const BlockCanvas: React.FC<BlockCanvasProps> = ({ parsedAST }) => {
-  console.log(parsedAST);
+const BlockCanvas: React.FC<BlockCanvasProps> = ({ parsedAST: _MathNode }) => {
   return null;
 };
 
