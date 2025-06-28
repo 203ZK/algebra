@@ -1,7 +1,7 @@
 import { ConstantNode, OperatorNode, ParenthesisNode, SymbolNode, type MathNode } from "mathjs";
-import { Constant, Product, Sum, Term, Variable, type Expression } from "../types/operands";
+import { Constant, Product, Quotient, Reciprocal, Sum, Term, Variable, type Expression } from "../types/operands";
 
-// const PLUS_ONE = new Constant(1);
+const PLUS_ONE = new Constant(1);
 const ZERO = new Constant(0);
 const MINUS_ONE = new Constant(-1);
 
@@ -19,8 +19,8 @@ export const nodeToExpressionTree = (node: MathNode): Expression => {
           return differenceToExpressionTree(operatorNode);
         case "*":
           return productToExpressionTree(operatorNode);
-        // case "/":
-        //   return divisionToExpressionTree(operatorNode);
+        case "/":
+          return divisionToExpressionTree(operatorNode);
         default:
           return ZERO;
       }
@@ -91,9 +91,13 @@ export const productToExpressionTree = (node: OperatorNode): Expression => {
 /**
  * Converts a division to an expression tree.
  */
-// export const divisionToExpressionTree = (node: OperatorNode): Expression => {
-
-// };
+export const divisionToExpressionTree = (node: OperatorNode): Expression => {
+  const operand1: Expression = nodeToExpressionTree(node.args[0]);
+  const operand2: Expression = nodeToExpressionTree(node.args[1]);
+  const reciprocal: Reciprocal = new Reciprocal(operand2);
+  return operand1 instanceof Constant && operand1.isEqualTo(1)
+    ? reciprocal : new Quotient(operand1, reciprocal);
+};
 
 /**
  * Negates an expression.

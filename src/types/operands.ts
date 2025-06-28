@@ -13,13 +13,11 @@ export class Constant implements Expression {
     this.value = val;
   }
 
-  getSign(): boolean {
-    return this.value > 0;
-  }
+  getSign(): boolean { return this.value > 0; }
 
-  negate(): Constant {
-    return new Constant(-1 * this.value);
-  }
+  negate(): Constant { return new Constant(-1 * this.value); }
+
+  isEqualTo(val: number): boolean { return this.value == val; }
 
   toString(): string {
     return this.value >= 0 ? `${this.value}` : `(-${-this.value})`;
@@ -83,17 +81,29 @@ export class Product implements Expression {
   }
 }
 
-export class Fraction implements Expression {
-  numerator: Expression;
+export class Reciprocal implements Expression {
   denominator: Expression;
 
-  constructor(num: Expression, denom: Expression) {
-    this.numerator = num;
-    this.denominator = denom;
+  constructor(expr: Expression) {
+    this.denominator = expr;
   }
 
   toString(): string {
-    return `[${this.numerator}] / [${this.denominator}]`
+    return `1 / [${this.denominator}]`;
+  }
+}
+
+export class Quotient implements Expression {
+  numerator: Expression;
+  reciprocal: Reciprocal;
+
+  constructor(num: Expression, rec: Reciprocal) {
+    this.numerator = num;
+    this.reciprocal = rec;
+  }
+
+  toString(): string {
+    return `[${this.numerator}] * [${this.reciprocal}]`;
   }
 }
 
