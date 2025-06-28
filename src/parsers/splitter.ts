@@ -1,7 +1,7 @@
 import { ConstantNode, OperatorNode, ParenthesisNode, SymbolNode, type MathNode } from "mathjs";
-import { Constant, Product, Quotient, Reciprocal, Sum, Term, Variable, type Expression } from "../types/operands";
+import { Constant, Product, Quotient, Reciprocal, Sum, Term, Variable, Expression } from "../types/operands";
 
-const PLUS_ONE = new Constant(1);
+// const PLUS_ONE = new Constant(1);
 const ZERO = new Constant(0);
 const MINUS_ONE = new Constant(-1);
 
